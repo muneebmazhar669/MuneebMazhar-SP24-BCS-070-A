@@ -1,0 +1,1564 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+
+// ════════════════════════════════════════════════════════════
+//  ENTRY POINT
+// ════════════════════════════════════════════════════════════
+void main() => runApp(const QuizApp());
+
+// ════════════════════════════════════════════════════════════
+//  DESIGN TOKENS  — all compile-time const
+// ════════════════════════════════════════════════════════════
+const Color kBg       = Color(0xFFFAF7F2);
+const Color kSurface  = Color(0xFFFFFFFF);
+const Color kPrimary  = Color(0xFF1B4332);
+const Color kAccent   = Color(0xFFD4A843);
+const Color kCorrect  = Color(0xFF2D6A4F);
+const Color kWrong    = Color(0xFFC1440E);
+const Color kNeutral  = Color(0xFF6B6456);
+const Color kBorder   = Color(0xFFE8E0D5);
+const Color kText     = Color(0xFF1A1714);
+const Color kMuted    = Color(0xFF8A7F74);
+const Color kTimerLow = Color(0xFFE05C2A); // orange-red when time is low
+
+const double kRadius  = 16.0;
+const double kRadSm   = 10.0;
+const double kPad     = 24.0;
+const double kPadSm   = 16.0;
+
+/// Seconds allowed per question.
+const int kQuestionSeconds = 10;
+
+// ════════════════════════════════════════════════════════════
+//  DATA MODEL
+// ════════════════════════════════════════════════════════════
+class QuizQuestion {
+  final String category;
+  final String question;
+  final List<String> options;
+  final int answerIndex;
+  final String explanation;
+
+  const QuizQuestion({
+    required this.category,
+    required this.question,
+    required this.options,
+    required this.answerIndex,
+    required this.explanation,
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  QUESTION BANK
+// ════════════════════════════════════════════════════════════
+const List<QuizQuestion> kQuestions = [
+  QuizQuestion(
+    category: 'Dart Basics',
+    question:
+    'Which keyword declares a value that is assigned once at runtime and cannot be reassigned?',
+    options: ['var', 'const', 'final', 'static'],
+    answerIndex: 2,
+    explanation:
+    '`final` allows a variable to be set exactly once at runtime. '
+        '`const` is stricter — it requires a compile-time constant value.',
+  ),
+  QuizQuestion(
+    category: 'Dart Basics',
+    question: 'What does the `~/` operator do in Dart?',
+    options: [
+      'Floating-point division',
+      'Integer (truncating) division',
+      'Modulo',
+      'Bitwise XOR',
+    ],
+    answerIndex: 1,
+    explanation:
+    '`~/` performs integer division, discarding any remainder. '
+        'e.g. `10 ~/ 3` returns `3`.',
+  ),
+  QuizQuestion(
+    category: 'Flutter Widgets',
+    question:
+    'Which widget should you use for a scrollable list of similar items?',
+    options: ['Column', 'Stack', 'ListView', 'Flex'],
+    answerIndex: 2,
+    explanation:
+    '`ListView` is designed for scrollable lists. `Column` is not '
+        'scrollable and will overflow when content exceeds the screen.',
+  ),
+  QuizQuestion(
+    category: 'Flutter Widgets',
+    question: 'What correctly describes a `StatelessWidget`?',
+    options: [
+      'A widget whose internal state changes over time',
+      'A widget with no mutable internal state',
+      'A widget exclusively used for animations',
+      'A widget only for layout purposes',
+    ],
+    answerIndex: 1,
+    explanation:
+    '`StatelessWidget` has no mutable state. Its `build` method depends '
+        'solely on its constructor arguments and never needs to be rebuilt '
+        'due to internal changes.',
+  ),
+  QuizQuestion(
+    category: 'OOP Concepts',
+    question:
+    'Which OOP principle lets a subclass override a method from its superclass?',
+    options: ['Encapsulation', 'Abstraction', 'Inheritance', 'Polymorphism'],
+    answerIndex: 3,
+    explanation:
+    'Polymorphism (method overriding) allows a subclass to provide its '
+        'own implementation of a method defined in the superclass.',
+  ),
+  QuizQuestion(
+    category: 'Data Structures',
+    question:
+    'What is the time complexity of index-based access on a Dart `List`?',
+    options: ['O(log n)', 'O(n)', 'O(1)', 'O(n²)'],
+    answerIndex: 2,
+    explanation:
+    'Dart `List` is array-backed: elements sit in contiguous memory, '
+        'so index access is a single pointer offset — constant time O(1).',
+  ),
+  QuizQuestion(
+    category: 'Flutter Layout',
+    question: 'Which widget allows its children to overlap each other?',
+    options: ['Row', 'Column', 'Wrap', 'Stack'],
+    answerIndex: 3,
+    explanation:
+    '`Stack` positions children relative to its edges and lets them '
+        'overlap. `Row` and `Column` arrange children linearly without overlap.',
+  ),
+  QuizQuestion(
+    category: 'Dart Collections',
+    question:
+    'Which Dart collection type guarantees uniqueness and has no defined order?',
+    options: ['List', 'Map', 'Set', 'Queue'],
+    answerIndex: 2,
+    explanation:
+    '`Set` stores unique values only — duplicates are silently ignored. '
+        '`List` allows duplicates and preserves insertion order.',
+  ),
+];
+
+// ════════════════════════════════════════════════════════════
+//  ROOT APP
+// ════════════════════════════════════════════════════════════
+class QuizApp extends StatelessWidget {
+  const QuizApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Scholar Quiz',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: kBg,
+        colorScheme: const ColorScheme.light(
+          primary: kPrimary,
+          secondary: kAccent,
+          surface: kSurface,
+        ),
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(
+            fontFamily: 'Georgia',
+            fontSize: 36,
+            fontWeight: FontWeight.w700,
+            color: kText,
+            letterSpacing: -1,
+          ),
+          titleLarge: TextStyle(
+            fontFamily: 'Georgia',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: kText,
+            height: 1.4,
+          ),
+          bodyMedium:
+          TextStyle(fontSize: 15, color: kText, height: 1.6),
+        ),
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  HOME SCREEN
+// ════════════════════════════════════════════════════════════
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme tt = Theme.of(context).textTheme;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(kPad),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _TagChip(
+                  label: 'SCHOLAR QUIZ', icon: Icons.school_outlined),
+              const Spacer(),
+              const Center(child: _HeroOrb()),
+              const SizedBox(height: 40),
+              Text('Ready to\nTest Yourself?', style: tt.displayLarge),
+              const SizedBox(height: 12),
+              Text(
+                '${kQuestions.length} questions covering Dart, Flutter,\n'
+                    'OOP and Data Structures.',
+                style: tt.bodyMedium!.copyWith(color: kMuted),
+              ),
+              const Spacer(),
+              const Row(
+                children: [
+                  _InfoPill(
+                      icon: Icons.quiz_outlined, label: '8 Questions'),
+                  SizedBox(width: 10),
+                  _InfoPill(
+                      icon: Icons.timer_outlined,
+                      label: '${kQuestionSeconds}s / Q'),
+                  SizedBox(width: 10),
+                  _InfoPill(
+                      icon: Icons.emoji_events_outlined, label: 'Scored'),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _PrimaryButton(
+                label: 'Begin Quiz',
+                icon: Icons.arrow_forward_rounded,
+                onPressed: () => Navigator.push(
+                  context,
+                  _slideRoute(const QuizScreen()),
+                ),
+              ),
+              const SizedBox(height: 4),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  QUIZ SCREEN  (with per-question countdown timer)
+// ════════════════════════════════════════════════════════════
+class QuizScreen extends StatefulWidget {
+  const QuizScreen({super.key});
+
+  @override
+  State<QuizScreen> createState() => _QuizScreenState();
+}
+
+class _QuizScreenState extends State<QuizScreen>
+    with SingleTickerProviderStateMixin {
+  final List<int?> _answers = List.filled(kQuestions.length, null);
+
+  int  _idx      = 0;
+  int? _selected;
+  bool _revealed = false;
+  bool _showExp  = false;
+
+  // ── timer state ────────────────────────────────────────────
+  late int   _secondsLeft;
+  Timer?     _timer;
+  bool       _timedOut = false; // true when this question expired
+
+  // ── fade animation ─────────────────────────────────────────
+  late final AnimationController _fadeCtrl;
+  late final Animation<double>   _fadeAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+    )..forward();
+    _fadeAnim =
+        CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _fadeCtrl.dispose();
+    super.dispose();
+  }
+
+  // ── timer helpers ──────────────────────────────────────────
+  void _startTimer() {
+    _secondsLeft = kQuestionSeconds;
+    _timedOut    = false;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), _onTick);
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void _onTick(Timer t) {
+    if (!mounted) { t.cancel(); return; }
+    setState(() => _secondsLeft--);
+
+    if (_secondsLeft <= 0) {
+      t.cancel();
+      _handleTimeout();
+    }
+  }
+
+  /// Called when the clock hits zero.
+  void _handleTimeout() {
+    if (_revealed) return; // already answered — ignore
+    setState(() {
+      _timedOut  = true;
+      _revealed  = true;
+      // Don't set _selected — user picked nothing
+      _answers[_idx] = null; // mark as unanswered / wrong
+    });
+    _showTimeoutBanner();
+  }
+
+  /// Shows an overlay banner for 1.8 s, then advances automatically.
+  void _showTimeoutBanner() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black45,
+      builder: (_) => const _TimeoutDialog(),
+    );
+
+    Future.delayed(const Duration(milliseconds: 1800), () {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // close dialog
+      _advance();
+    });
+  }
+
+  // ── quiz logic ─────────────────────────────────────────────
+  QuizQuestion get _q     => kQuestions[_idx];
+  bool get _isLast        => _idx == kQuestions.length - 1;
+  int  get _liveScore     => _answers
+      .asMap()
+      .entries
+      .where((e) => e.value == kQuestions[e.key].answerIndex)
+      .length;
+
+  void _pick(int i) {
+    if (_revealed) return;
+    _stopTimer();
+    setState(() {
+      _selected  = i;
+      _revealed  = true;
+      _answers[_idx] = i;
+    });
+  }
+
+  void _advance() {
+    _stopTimer();
+    if (!_isLast) {
+      setState(() {
+        _idx++;
+        _selected = null;
+        _revealed = false;
+        _showExp  = false;
+        _timedOut = false;
+      });
+      _fadeCtrl..reset()..forward();
+      _startTimer();
+    } else {
+      Navigator.pushReplacement(
+        context,
+        _slideRoute(ResultScreen(answers: List.unmodifiable(_answers))),
+      );
+    }
+  }
+
+  _OptionState _stateOf(int i) {
+    if (!_revealed) {
+      return _selected == i ? _OptionState.selected : _OptionState.idle;
+    }
+    if (i == _q.answerIndex) return _OptionState.correct;
+    if (i == _selected)      return _OptionState.wrong;
+    return _OptionState.idle;
+  }
+
+  // ── colours for the timer ring ─────────────────────────────
+  Color get _timerColor {
+    final ratio = _secondsLeft / kQuestionSeconds;
+    if (ratio > 0.5) return kCorrect;
+    if (ratio > 0.25) return kAccent;
+    return kTimerLow;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            // ── progress header ──────────────────────────────
+            _QuizHeader(
+              current:  _idx + 1,
+              total:    kQuestions.length,
+              score:    _liveScore,
+              progress: (_idx + 1) / kQuestions.length,
+            ),
+
+            // ── timer bar ────────────────────────────────────
+            _TimerBar(
+              secondsLeft: _secondsLeft,
+              totalSeconds: kQuestionSeconds,
+              color: _timerColor,
+              revealed: _revealed,
+            ),
+
+            // ── scrollable question body ─────────────────────
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnim,
+                child: SingleChildScrollView(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: kPad),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      _TagChip(label: _q.category.toUpperCase()),
+                      const SizedBox(height: 14),
+                      _QuestionCard(text: _q.question),
+                      const SizedBox(height: 20),
+
+                      // answer options
+                      ...List.generate(
+                        _q.options.length,
+                            (i) => _OptionTile(
+                          letter: String.fromCharCode(65 + i),
+                          text:   _q.options[i],
+                          state:  _stateOf(i),
+                          onTap:  () => _pick(i),
+                        ),
+                      ),
+
+                      // explanation panel
+                      if (_revealed && !_timedOut) ...[
+                        const SizedBox(height: 16),
+                        _ExplanationPanel(
+                          correct:  _selected == _q.answerIndex,
+                          text:     _q.explanation,
+                          show:     _showExp,
+                          onToggle: () =>
+                              setState(() => _showExp = !_showExp),
+                        ),
+                      ],
+
+                      // timed-out explanation (always expanded)
+                      if (_timedOut) ...[
+                        const SizedBox(height: 16),
+                        _ExplanationPanel(
+                          correct:  false,
+                          text:     _q.explanation,
+                          show:     true,
+                          onToggle: () {},
+                        ),
+                      ],
+
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // ── next button bar ──────────────────────────────
+            _BottomBar(
+              enabled: _revealed,
+              label:   _isLast ? 'See Results' : 'Next Question',
+              onTap:   _advance,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  TIMER BAR WIDGET
+// ════════════════════════════════════════════════════════════
+class _TimerBar extends StatelessWidget {
+  final int    secondsLeft;
+  final int    totalSeconds;
+  final Color  color;
+  final bool   revealed;
+
+  const _TimerBar({
+    required this.secondsLeft,
+    required this.totalSeconds,
+    required this.color,
+    required this.revealed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double ratio =
+    (secondsLeft / totalSeconds).clamp(0.0, 1.0);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: kPad, vertical: 8),
+      color: kBg,
+      child: Row(
+        children: [
+          // countdown circle
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withOpacity(0.12),
+              border: Border.all(color: color, width: 2),
+            ),
+            child: Center(
+              child: Text(
+                '$secondsLeft',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          // progress bar
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: 6,
+                child: LinearProgressIndicator(
+                  value: ratio,
+                  backgroundColor: kBorder,
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            revealed ? 'Done' : '${kQuestionSeconds}s',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: revealed ? kMuted : color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  TIMEOUT DIALOG  (auto-dismissed after 1.8 s)
+// ════════════════════════════════════════════════════════════
+class _TimeoutDialog extends StatelessWidget {
+  const _TimeoutDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+          decoration: BoxDecoration(
+            color: kSurface,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: kTimerLow.withOpacity(0.12),
+                  border: Border.all(color: kTimerLow, width: 2.5),
+                ),
+                child: const Icon(
+                  Icons.hourglass_empty_rounded,
+                  color: kTimerLow,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "Time's Up!",
+                style: TextStyle(
+                  fontFamily: 'Georgia',
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: kTimerLow,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Moving to the next question…',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: kMuted,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              // small animated dots to signal auto-dismiss
+              const _LoadingDots(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  ANIMATED DOTS (used inside TimeoutDialog)
+// ════════════════════════════════════════════════════════════
+class _LoadingDots extends StatefulWidget {
+  const _LoadingDots();
+
+  @override
+  State<_LoadingDots> createState() => _LoadingDotsState();
+}
+
+class _LoadingDotsState extends State<_LoadingDots>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, __) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (i) {
+            // stagger each dot
+            final phase = (_ctrl.value - i * 0.2).clamp(0.0, 1.0);
+            final scale = 0.6 + 0.4 * (phase < 0.5 ? phase * 2 : (1 - phase) * 2);
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Transform.scale(
+                scale: scale,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: kTimerLow,
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  RESULT SCREEN
+// ════════════════════════════════════════════════════════════
+class ResultScreen extends StatelessWidget {
+  final List<int?> answers;
+  const ResultScreen({super.key, required this.answers});
+
+  int get _score => answers
+      .asMap()
+      .entries
+      .where((e) => e.value == kQuestions[e.key].answerIndex)
+      .length;
+
+  @override
+  Widget build(BuildContext context) {
+    final int    score = _score;
+    final int    total = kQuestions.length;
+    final double pct   = score / total;
+
+    final String   grade;
+    final Color    gradeColor;
+    final IconData gradeIcon;
+
+    if (pct == 1.0) {
+      grade = 'Perfect Score!';  gradeColor = kCorrect;
+      gradeIcon = Icons.workspace_premium_rounded;
+    } else if (pct >= 0.75) {
+      grade = 'Excellent Work!'; gradeColor = kCorrect;
+      gradeIcon = Icons.emoji_events_rounded;
+    } else if (pct >= 0.5) {
+      grade = 'Good Effort!';    gradeColor = kAccent;
+      gradeIcon = Icons.thumb_up_alt_rounded;
+    } else {
+      grade = 'Keep Studying!';  gradeColor = kWrong;
+      gradeIcon = Icons.menu_book_rounded;
+    }
+
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(kPad),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () =>
+                    Navigator.popUntil(context, (r) => r.isFirst),
+                child: const _BackChip(),
+              ),
+              const SizedBox(height: 28),
+              _ResultHero(
+                score:      score,
+                total:      total,
+                grade:      grade,
+                gradeColor: gradeColor,
+                gradeIcon:  gradeIcon,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  _StatCard(
+                      value: '$score',
+                      label: 'Correct',
+                      color: kCorrect,
+                      icon: Icons.check_rounded),
+                  const SizedBox(width: 10),
+                  _StatCard(
+                      value: '${total - score}',
+                      label: 'Wrong',
+                      color: kWrong,
+                      icon: Icons.close_rounded),
+                  const SizedBox(width: 10),
+                  _StatCard(
+                      value: '${(pct * 100).round()}%',
+                      label: 'Score',
+                      color: kPrimary,
+                      icon: Icons.percent_rounded),
+                ],
+              ),
+              const SizedBox(height: 28),
+              Text('Answer Review',
+                  style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 14),
+              ...List.generate(
+                kQuestions.length,
+                    (i) => _ReviewRow(
+                  number:     i + 1,
+                  question:   kQuestions[i],
+                  userAnswer: answers[i],
+                  correct:
+                  answers[i] == kQuestions[i].answerIndex,
+                ),
+              ),
+              const SizedBox(height: 28),
+              _PrimaryButton(
+                label: 'Try Again',
+                icon:  Icons.refresh_rounded,
+                onPressed: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  _slideRoute(const QuizScreen()),
+                      (r) => r.isFirst,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: TextButton(
+                  onPressed: () =>
+                      Navigator.popUntil(context, (r) => r.isFirst),
+                  child: const Text('Back to Home',
+                      style: TextStyle(color: kMuted, fontSize: 14)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  SMALL REUSABLE WIDGETS  (unchanged from original)
+// ════════════════════════════════════════════════════════════
+
+class _TagChip extends StatelessWidget {
+  final String    label;
+  final IconData? icon;
+  const _TagChip({required this.label, this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding:
+      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color:  kPrimary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(50),
+        border: Border.all(color: kPrimary.withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 13, color: kPrimary),
+            const SizedBox(width: 5),
+          ],
+          Text(label,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.4,
+                color: kPrimary,
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoPill extends StatelessWidget {
+  final IconData icon;
+  final String   label;
+  const _InfoPill({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding:
+      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color:  kSurface,
+        borderRadius: BorderRadius.circular(kRadSm),
+        border: Border.all(color: kBorder),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: kMuted),
+          const SizedBox(width: 5),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 12,
+                  color: kMuted,
+                  fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
+class _PrimaryButton extends StatelessWidget {
+  final String       label;
+  final IconData     icon;
+  final VoidCallback onPressed;
+  const _PrimaryButton(
+      {required this.label,
+        required this.icon,
+        required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: kPrimary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kRadius)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w700)),
+            const SizedBox(width: 8),
+            Icon(icon, size: 18),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroOrb extends StatelessWidget {
+  const _HeroOrb();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 180,
+      height: 180,
+      decoration: BoxDecoration(
+        color: kSurface,
+        shape: BoxShape.circle,
+        border: Border.all(color: kBorder, width: 2),
+        boxShadow: [
+          BoxShadow(
+              color: kPrimary.withOpacity(0.08),
+              blurRadius: 40,
+              spreadRadius: 10),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 148,
+            height: 148,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: kAccent.withOpacity(0.35), width: 1.5),
+            ),
+          ),
+          const Icon(Icons.psychology_rounded,
+              size: 72, color: kPrimary),
+          Positioned(
+            top: 28,
+            right: 36,
+            child: Container(
+              width: 14,
+              height: 14,
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: kAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuizHeader extends StatelessWidget {
+  final int    current;
+  final int    total;
+  final int    score;
+  final double progress;
+  const _QuizHeader(
+      {required this.current,
+        required this.total,
+        required this.score,
+        required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(kPad, 16, kPad, 12),
+      decoration: BoxDecoration(
+        color: kBg,
+        border: Border(bottom: BorderSide(color: kBorder)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text('Question $current of $total',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: kMuted)),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: kCorrect.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(50),
+                  border:
+                  Border.all(color: kCorrect.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.star_rounded,
+                        size: 13, color: kCorrect),
+                    const SizedBox(width: 4),
+                    Text('$score pts',
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: kCorrect)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value:      progress,
+              minHeight:  5,
+              backgroundColor: kBorder,
+              valueColor:
+              const AlwaysStoppedAnimation<Color>(kAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuestionCard extends StatelessWidget {
+  final String text;
+  const _QuestionCard({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(kPad),
+      decoration: BoxDecoration(
+        color: kPrimary,
+        borderRadius: BorderRadius.circular(kRadius),
+      ),
+      child: Text(text,
+          style: const TextStyle(
+            fontFamily: 'Georgia',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            height: 1.5,
+          )),
+    );
+  }
+}
+
+enum _OptionState { idle, selected, correct, wrong }
+
+class _OptionTile extends StatelessWidget {
+  final String       letter;
+  final String       text;
+  final _OptionState state;
+  final VoidCallback onTap;
+
+  const _OptionTile(
+      {required this.letter,
+        required this.text,
+        required this.state,
+        required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final Color   border;
+    final Color   bg;
+    final Color   fg;
+    final Widget? trail;
+
+    switch (state) {
+      case _OptionState.correct:
+        border = kCorrect;
+        bg     = kCorrect.withOpacity(0.08);
+        fg     = kCorrect;
+        trail  = const Icon(Icons.check_circle_rounded,
+            color: kCorrect, size: 22);
+        break;
+      case _OptionState.wrong:
+        border = kWrong;
+        bg     = kWrong.withOpacity(0.08);
+        fg     = kWrong;
+        trail  = const Icon(Icons.cancel_rounded,
+            color: kWrong, size: 22);
+        break;
+      case _OptionState.selected:
+        border = kPrimary;
+        bg     = kPrimary.withOpacity(0.06);
+        fg     = kPrimary;
+        trail  = null;
+        break;
+      case _OptionState.idle:
+      default:
+        border = kBorder;
+        bg     = kSurface;
+        fg     = kText;
+        trail  = null;
+    }
+
+    final bool isIdle = state == _OptionState.idle;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(
+              horizontal: kPadSm, vertical: 14),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(kRadius),
+            border: Border.all(color: border, width: 1.5),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  shape:  BoxShape.circle,
+                  color:  isIdle
+                      ? kBorder
+                      : border.withOpacity(0.15),
+                  border: Border.all(
+                      color: isIdle
+                          ? kBorder
+                          : border.withOpacity(0.4)),
+                ),
+                child: Center(
+                  child: Text(letter,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: isIdle ? kMuted : fg,
+                      )),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(text,
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: fg,
+                        height: 1.4)),
+              ),
+              if (trail != null) ...[
+                const SizedBox(width: 8),
+                trail,
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExplanationPanel extends StatelessWidget {
+  final bool correct;
+  final String text;
+  final bool show;
+  final VoidCallback onToggle;
+  const _ExplanationPanel(
+      {required this.correct,
+        required this.text,
+        required this.show,
+        required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    final Color c = correct ? kCorrect : kWrong;
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: kPadSm, vertical: 12),
+          decoration: BoxDecoration(
+            color:  c.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(kRadSm),
+            border: Border.all(color: c.withOpacity(0.3)),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                  correct
+                      ? Icons.check_circle_outline_rounded
+                      : Icons.highlight_off_rounded,
+                  color: c,
+                  size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                    correct
+                        ? 'Correct! Well done.'
+                        : 'Not quite right.',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: c,
+                        fontSize: 14)),
+              ),
+              GestureDetector(
+                onTap: onToggle,
+                child: Row(
+                  children: [
+                    Text(show ? 'Hide' : 'Explain',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: c)),
+                    const SizedBox(width: 2),
+                    Icon(
+                        show
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
+                        size: 16,
+                        color: c),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (show)
+          Container(
+            margin: const EdgeInsets.only(top: 2),
+            padding: const EdgeInsets.all(kPadSm),
+            decoration: BoxDecoration(
+              color: kSurface,
+              borderRadius: const BorderRadius.only(
+                bottomLeft:  Radius.circular(kRadSm),
+                bottomRight: Radius.circular(kRadSm),
+              ),
+              border: Border.all(color: kBorder),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.lightbulb_outline_rounded,
+                    size: 16, color: kAccent),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(text,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          color: kNeutral,
+                          height: 1.6)),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _BottomBar extends StatelessWidget {
+  final bool     enabled;
+  final String   label;
+  final VoidCallback onTap;
+  const _BottomBar(
+      {required this.enabled,
+        required this.label,
+        required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(kPad, 12, kPad, 24),
+      decoration: BoxDecoration(
+          color: kBg,
+          border: Border(top: BorderSide(color: kBorder))),
+      child: SizedBox(
+        width: double.infinity,
+        height: 52,
+        child: ElevatedButton(
+          onPressed: enabled ? onTap : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor:         kPrimary,
+            disabledBackgroundColor: kBorder,
+            foregroundColor:         Colors.white,
+            disabledForegroundColor: kMuted,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kRadius)),
+          ),
+          child: Text(label,
+              style: const TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.w700)),
+        ),
+      ),
+    );
+  }
+}
+
+class _ResultHero extends StatelessWidget {
+  final int    score;
+  final int    total;
+  final String grade;
+  final Color  gradeColor;
+  final IconData gradeIcon;
+  const _ResultHero(
+      {required this.score,
+        required this.total,
+        required this.grade,
+        required this.gradeColor,
+        required this.gradeIcon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: kSurface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kBorder),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              shape:  BoxShape.circle,
+              color:  gradeColor.withOpacity(0.1),
+              border: Border.all(color: gradeColor, width: 3),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('$score/$total',
+                    style: TextStyle(
+                      fontFamily: 'Georgia',
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: gradeColor,
+                    )),
+                Text('score',
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: gradeColor.withOpacity(0.7))),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(gradeIcon, color: gradeColor, size: 20),
+              const SizedBox(width: 6),
+              Text(grade,
+                  style: TextStyle(
+                    fontFamily: 'Georgia',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: gradeColor,
+                  )),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text('You answered $score out of $total correctly.',
+              style:
+              const TextStyle(color: kMuted, fontSize: 14)),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String   value;
+  final String   label;
+  final Color    color;
+  final IconData icon;
+  const _StatCard(
+      {required this.value,
+        required this.label,
+        required this.color,
+        required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(kRadius),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 6),
+            Text(value,
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: color)),
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 11, color: kMuted)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReviewRow extends StatelessWidget {
+  final int          number;
+  final QuizQuestion question;
+  final int?         userAnswer;
+  final bool         correct;
+  const _ReviewRow(
+      {required this.number,
+        required this.question,
+        required this.userAnswer,
+        required this.correct});
+
+  @override
+  Widget build(BuildContext context) {
+    final Color c = correct ? kCorrect : kWrong;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(kPadSm),
+      decoration: BoxDecoration(
+        color: kSurface,
+        borderRadius: BorderRadius.circular(kRadius),
+        border: Border.all(color: c.withOpacity(0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: c.withOpacity(0.1)),
+            child: Center(
+              child: Text('$number',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: c)),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(question.question,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: kText,
+                        height: 1.4)),
+                const SizedBox(height: 5),
+                if (!correct && userAnswer != null)
+                  Text(
+                      'Your answer: ${question.options[userAnswer!]}',
+                      style: const TextStyle(
+                          fontSize: 12, color: kWrong)),
+                if (!correct && userAnswer == null)
+                  const Text('No answer (timed out)',
+                      style: TextStyle(
+                          fontSize: 12, color: kTimerLow)),
+                Text(
+                    'Correct: ${question.options[question.answerIndex]}',
+                    style: const TextStyle(
+                        fontSize: 12, color: kCorrect)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Icon(
+              correct
+                  ? Icons.check_circle_rounded
+                  : Icons.cancel_rounded,
+              color: c,
+              size: 18),
+        ],
+      ),
+    );
+  }
+}
+
+class _BackChip extends StatelessWidget {
+  const _BackChip();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding:
+      const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: kSurface,
+        borderRadius: BorderRadius.circular(50),
+        border: Border.all(color: kBorder),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.home_outlined, size: 14, color: kMuted),
+          SizedBox(width: 5),
+          Text('Home',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: kMuted)),
+        ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  NAVIGATION HELPER
+// ════════════════════════════════════════════════════════════
+Route<dynamic> _slideRoute(Widget page) {
+  return PageRouteBuilder(
+    pageBuilder: (_, __, ___) => page,
+    transitionsBuilder: (_, anim, __, child) {
+      final pos = Tween<Offset>(
+          begin: const Offset(1, 0), end: Offset.zero)
+          .animate(CurvedAnimation(
+          parent: anim, curve: Curves.easeOutCubic));
+      return SlideTransition(position: pos, child: child);
+    },
+    transitionDuration: const Duration(milliseconds: 340),
+  );
+}
