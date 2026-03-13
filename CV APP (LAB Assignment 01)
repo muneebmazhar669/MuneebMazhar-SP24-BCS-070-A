@@ -1,0 +1,1610 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(const CVApp());
+
+// ═══════════════════════════════════════════════════════════════
+//  COLOURS
+// ═══════════════════════════════════════════════════════════════
+
+// Gray — Professional
+const kGrayDark   = Color(0xFF37474F);
+const kGrayMid    = Color(0xFF546E7A);
+const kGrayDiv    = Color(0xFF78909C);
+const kGrayAccent = Color(0xFF607D8B);
+
+// Sky Blue — Hobby
+const kSkyDark    = Color(0xFF0277BD); // AppBar / header
+const kSkyMid     = Color(0xFF0288D1); // stats bar
+const kSkyDiv     = Color(0xFF29B6F6); // divider
+const kSkyAccent  = Color(0xFF039BE5); // section accent
+const kSkyLight   = Color(0xFF81D4FA); // chip border / tint
+
+// Navy — Home + general chrome
+const kNavy       = Color(0xFF1A237E);
+const kNavyMid    = Color(0xFF283593);
+const kNavyDiv    = Color(0xFF3949AB);
+
+// Shared
+const kTextMuted  = Color(0xFFB0B8D1);
+const kBg         = Color(0xFFEEEFF4);
+const kCard       = Colors.white;
+const kOrange     = Color(0xFFE65100);
+const kAmber      = Color(0xFFF57C00);
+const kTeal       = Color(0xFF00695C);
+const kPurple     = Color(0xFF6A1B9A);
+const kBlue       = Color(0xFF1565C0);
+const kCyan       = Color(0xFF00838F);
+const kGreen      = Color(0xFF558B2F);
+const kPink       = Color(0xFFAD1457);
+
+// ═══════════════════════════════════════════════════════════════
+//  DATA MODELS
+// ═══════════════════════════════════════════════════════════════
+
+class Education {
+  String degree, institution, year;
+  Education({required this.degree, required this.institution, required this.year});
+}
+
+class WorkExperience {
+  String role, company, duration, description;
+  WorkExperience({required this.role, required this.company, required this.duration, required this.description});
+}
+
+class ProjectItem {
+  String title, description, tech;
+  ProjectItem({required this.title, required this.description, required this.tech});
+}
+
+class CertItem {
+  String name, issuer, year;
+  CertItem({required this.name, required this.issuer, required this.year});
+}
+
+class Reference {
+  String name, role, contact;
+  Reference({required this.name, required this.role, required this.contact});
+}
+
+class ProfessionalCV {
+  String name, jobTitle, phone, email, linkedin, portfolio, city, country, summary;
+  List<String> keySkills, languages, volunteerWork, interests;
+  List<WorkExperience> workExperience;
+  List<ProjectItem> projects;
+  List<Education> education;
+  List<CertItem> certifications;
+  List<Reference> references;
+
+  ProfessionalCV({
+    required this.name, required this.jobTitle, required this.phone,
+    required this.email, required this.linkedin, required this.portfolio,
+    required this.city, required this.country, required this.summary,
+    required this.keySkills, required this.languages, required this.volunteerWork,
+    required this.interests, required this.workExperience, required this.projects,
+    required this.education, required this.certifications, required this.references,
+  });
+}
+
+class HobbyProjectItem {
+  String title, description;
+  HobbyProjectItem({required this.title, required this.description});
+}
+
+class AchievementItem {
+  String title, detail;
+  AchievementItem({required this.title, required this.detail});
+}
+
+class CommunityItem {
+  String role, org, detail;
+  CommunityItem({required this.role, required this.org, required this.detail});
+}
+
+class HobbyCV {
+  String name, email, phone, social, portfolio, personalProfile;
+  List<String> hobbies, skills, additionalInterests;
+  List<HobbyProjectItem> personalProjects;
+  List<AchievementItem> achievements;
+  List<CommunityItem> communityInvolvement;
+  List<Education> education;
+
+  HobbyCV({
+    required this.name, required this.email, required this.phone,
+    required this.social, required this.portfolio, required this.personalProfile,
+    required this.hobbies, required this.skills, required this.additionalInterests,
+    required this.personalProjects, required this.achievements,
+    required this.communityInvolvement, required this.education,
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SAMPLE DATA
+// ═══════════════════════════════════════════════════════════════
+
+final defaultProf = ProfessionalCV(
+  name: 'Alex Johnson', jobTitle: 'Senior Software Engineer',
+  phone: '+1 (555) 012-3456', email: 'alex.johnson@email.com',
+  linkedin: 'linkedin.com/in/alexjohnson', portfolio: 'alexjohnson.dev',
+  city: 'San Francisco', country: 'USA',
+  summary: 'Passionate software engineer with 6+ years of experience building scalable '
+      'mobile and web applications. Proven track record delivering high-quality products '
+      'in fast-paced Agile environments.',
+  keySkills: ['Flutter & Dart','Kotlin / Java','Swift (iOS)','REST APIs',
+    'Firebase','Agile / Scrum','CI/CD','PostgreSQL','Docker'],
+  workExperience: [
+    WorkExperience(role: 'Senior Mobile Developer', company: 'TechCorp Inc.',
+        duration: 'Jan 2022 – Present',
+        description: 'Led cross-platform app development serving 2M+ users. Reduced load time by 40%.'),
+    WorkExperience(role: 'Mobile Developer', company: 'StartupXYZ',
+        duration: 'Jun 2020 – Dec 2021',
+        description: 'Built and shipped 3 Flutter apps from scratch in an Agile environment.'),
+    WorkExperience(role: 'Junior Developer', company: 'CodeBase Labs',
+        duration: 'May 2018 – May 2020',
+        description: 'Developed Android features and maintained legacy Java codebases.'),
+  ],
+  projects: [
+    ProjectItem(title: 'HealthTrack App',
+        description: 'Cross-platform health monitoring with real-time sync.',
+        tech: 'Flutter · Firebase · HealthKit'),
+    ProjectItem(title: 'E-Commerce API',
+        description: 'Microservices backend handling 10K+ daily transactions.',
+        tech: 'Node.js · PostgreSQL · Docker'),
+  ],
+  education: [
+    Education(degree: 'M.Sc. Software Engineering', institution: 'Stanford University', year: '2020'),
+    Education(degree: 'B.Sc. Computer Science', institution: 'MIT', year: '2018'),
+  ],
+  certifications: [
+    CertItem(name: 'Google Associate Android Developer', issuer: 'Google', year: '2021'),
+    CertItem(name: 'AWS Certified Developer', issuer: 'Amazon Web Services', year: '2022'),
+  ],
+  languages: ['English (Native)', 'Spanish (Intermediate)', 'French (Basic)'],
+  volunteerWork: ['Code Mentor – CoderDojo (2021–Present)', 'Tech Lead – Hack for Good (2022)'],
+  interests: ['Open Source', 'AI Research', 'Competitive Programming'],
+  references: [
+    Reference(name: 'Dr. Sarah Mitchell', role: 'CTO – TechCorp Inc.', contact: 's.mitchell@techcorp.com'),
+    Reference(name: 'Prof. James Lee', role: 'Academic Advisor – Stanford', contact: 'j.lee@stanford.edu'),
+  ],
+);
+
+final defaultHobby = HobbyCV(
+  name: 'Alex Johnson', email: 'alex.johnson@email.com',
+  phone: '+1 (555) 012-3456', social: '@alexjcreates',
+  portfolio: 'alexjohnson.dev/creative',
+  personalProfile: 'Creative soul and lifelong learner who blends technology with art. '
+      'I find joy in storytelling through photography and building indie games.',
+  hobbies: ['🎸  Playing Guitar','📸  Photography','♟️  Chess','🚴  Mountain Biking','🎮  Indie Game Dev'],
+  personalProjects: [
+    HobbyProjectItem(title: 'Pixel Quest – Indie Game',
+        description: 'Retro 2D platformer on itch.io with 800+ downloads.'),
+    HobbyProjectItem(title: 'Urban Lens – Photo Series',
+        description: 'Street photography across 5 countries, exhibited 2023.'),
+  ],
+  skills: ['💬  Active Listening','🎯  Goal-Oriented','🤝  Community Building',
+    '🛠️  Creative Problem Solving','🎨  Visual Storytelling'],
+  achievements: [
+    AchievementItem(title: '1st Place – Regional Photo Contest', detail: 'Urban Photography, SF 2023'),
+    AchievementItem(title: 'Featured Dev – itch.io', detail: 'Pixel Quest on homepage for 2 weeks'),
+  ],
+  communityInvolvement: [
+    CommunityItem(role: 'Volunteer Mentor', org: 'CoderDojo SF',
+        detail: 'Teaching kids to code every Saturday'),
+    CommunityItem(role: 'Organizer', org: 'Game Jam Bay Area',
+        detail: '48-hour jam with 60+ participants'),
+  ],
+  education: [
+    Education(degree: 'M.Sc. Software Engineering', institution: 'Stanford University', year: '2020'),
+    Education(degree: 'B.Sc. Computer Science', institution: 'MIT', year: '2018'),
+  ],
+  additionalInterests: ['🌍  Sustainable Technology','🧠  AI & Ethics',
+    '🎬  Sci-Fi Cinema','🌱  Urban Gardening','✈️  Solo Travel'],
+);
+
+// ═══════════════════════════════════════════════════════════════
+//  APP ROOT
+// ═══════════════════════════════════════════════════════════════
+
+class CVApp extends StatelessWidget {
+  const CVApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'CV Application',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: kNavy),
+        useMaterial3: true,
+        fontFamily: 'Roboto',
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HOME PAGE
+// ═══════════════════════════════════════════════════════════════
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBg,
+      appBar: AppBar(
+        backgroundColor: kNavy,
+        elevation: 0,
+        title: const Text('CV Application',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+        centerTitle: true,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Row(children: [
+              Icon(Icons.description_rounded, color: Colors.white, size: 15),
+              SizedBox(width: 4),
+              Text('CV', style: TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+            ]),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(68),
+          child: Container(
+            color: kNavyMid,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(children: [
+              _statCol('2', 'CV Types'),
+              Container(width: 1, height: 34, color: kNavyDiv),
+              _statCol('9', 'Sections'),
+              Container(width: 1, height: 34, color: kNavyDiv),
+              _statCol('∞', 'Entries'),
+            ]),
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const SizedBox(height: 10),
+
+          // ── Welcome hero card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                  colors: [kNavy, kNavyMid],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(color: kNavy.withOpacity(0.4),
+                    blurRadius: 16, offset: const Offset(0, 6))
+              ],
+            ),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(14)),
+                child: const Icon(Icons.workspace_premium_rounded,
+                    color: Colors.white, size: 36),
+              ),
+              const SizedBox(height: 20),
+              const Text('Build Your\nProfessional Story.',
+                  style: TextStyle(color: Colors.white, fontSize: 28,
+                      fontWeight: FontWeight.w900, height: 1.2)),
+              const SizedBox(height: 10),
+              const Text(
+                'Create a polished Professional CV or a creative Hobby CV — '
+                    'all in one place. Showcase who you are.',
+                style: TextStyle(color: kTextMuted, fontSize: 13, height: 1.5),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity, height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => CVMainPage(
+                          initialProf: defaultProf, initialHobby: defaultHobby))),
+                  icon: const Icon(Icons.badge_rounded, color: kNavy),
+                  label: const Text('View Professional CV',
+                      style: TextStyle(color: kNavy,
+                          fontWeight: FontWeight.bold, fontSize: 15)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ]),
+          ),
+
+          const SizedBox(height: 28),
+          const Text('What you can do',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold,
+                  color: Colors.black45, letterSpacing: 1)),
+          const SizedBox(height: 14),
+
+          Row(children: [
+            Expanded(child: _featureCard(icon: Icons.work_rounded,
+                color: kGrayDark, title: 'Professional CV', subtitle: '9 structured sections')),
+            const SizedBox(width: 12),
+            Expanded(child: _featureCard(icon: Icons.palette_rounded,
+                color: kSkyDark, title: 'Hobby CV', subtitle: '9 creative sections')),
+          ]),
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(child: _featureCard(icon: Icons.construction_rounded,
+                color: kTeal, title: 'Build CV', subtitle: 'Fill in your details')),
+            const SizedBox(width: 12),
+            Expanded(child: _featureCard(icon: Icons.swap_horiz_rounded,
+                color: kPurple, title: 'Switch Instantly', subtitle: 'Toggle between CVs')),
+          ]),
+
+          const SizedBox(height: 28),
+          SizedBox(
+            width: double.infinity, height: 54,
+            child: ElevatedButton.icon(
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => CVMainPage(
+                      initialProf: defaultProf, initialHobby: defaultHobby))),
+              icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+              label: const Text('Get Started',
+                  style: TextStyle(color: Colors.white,
+                      fontWeight: FontWeight.bold, fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kNavy,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                elevation: 0,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ]),
+      ),
+    );
+  }
+
+  Widget _featureCard({required IconData icon, required Color color,
+    required String title, required String subtitle}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: kCard, borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05),
+            blurRadius: 8, offset: const Offset(0, 3))],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+              color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+          child: Icon(icon, color: color, size: 22),
+        ),
+        const SizedBox(height: 12),
+        Text(title, style: const TextStyle(
+            fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1A1A2E))),
+        const SizedBox(height: 2),
+        Text(subtitle, style: const TextStyle(fontSize: 11, color: Colors.black45)),
+      ]),
+    );
+  }
+
+  static Widget _statCol(String val, String label) {
+    return Expanded(child: Column(children: [
+      Text(val, style: const TextStyle(
+          color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
+      Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+    ]));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CV MAIN PAGE
+// ═══════════════════════════════════════════════════════════════
+
+enum CVMode { professional, hobby }
+
+class CVMainPage extends StatefulWidget {
+  final ProfessionalCV initialProf;
+  final HobbyCV initialHobby;
+  const CVMainPage({super.key, required this.initialProf, required this.initialHobby});
+
+  @override
+  State<CVMainPage> createState() => _CVMainPageState();
+}
+
+class _CVMainPageState extends State<CVMainPage>
+    with SingleTickerProviderStateMixin {
+  CVMode _mode = CVMode.professional;
+  late AnimationController _animCtrl;
+  late Animation<double> _fadeAnim;
+  late ProfessionalCV _profCV;
+  late HobbyCV _hobbyCV;
+
+  @override
+  void initState() {
+    super.initState();
+    _profCV  = widget.initialProf;
+    _hobbyCV = widget.initialHobby;
+    _animCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 280));
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeInOut);
+    _animCtrl.forward();
+  }
+
+  @override
+  void dispose() { _animCtrl.dispose(); super.dispose(); }
+
+  void _switchMode(CVMode m) {
+    if (_mode == m) return;
+    _animCtrl.reverse().then((_) {
+      setState(() => _mode = m);
+      _animCtrl.forward();
+    });
+  }
+
+  bool get _isPro => _mode == CVMode.professional;
+
+  Color get _appBarColor   => _isPro ? kGrayDark : kSkyDark;
+  Color get _statsBarColor => _isPro ? kGrayMid  : kSkyMid;
+  Color get _divColor      => _isPro ? kGrayDiv  : kSkyDiv;
+
+  String get _statMid      => _isPro ? '${_profCV.keySkills.length}'      : '${_hobbyCV.hobbies.length}';
+  String get _statMidLbl   => _isPro ? 'Skills'                           : 'Hobbies';
+  String get _statRight    => _isPro ? '${_profCV.workExperience.length}' : '${_hobbyCV.achievements.length}';
+  String get _statRightLbl => _isPro ? 'Jobs'                             : 'Awards';
+
+  Future<void> _openBuildCV() async {
+    final res = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(builder: (_) => BuildCVPage(
+          initialProf: _profCV, initialHobby: _hobbyCV)),
+    );
+    if (res != null) setState(() {
+      if (res['profCV']  != null) _profCV  = res['profCV'];
+      if (res['hobbyCV'] != null) _hobbyCV = res['hobbyCV'];
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBg,
+      appBar: AppBar(
+        backgroundColor: _appBarColor,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(_isPro ? 'Professional CV' : 'Hobby CV',
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+        centerTitle: true,
+        actions: [
+          GestureDetector(
+            onTap: _openBuildCV,
+            child: Container(
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10)),
+              child: const Row(children: [
+                Icon(Icons.edit_note_rounded, color: Colors.white, size: 15),
+                SizedBox(width: 4),
+                Text('Build', style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+              ]),
+            ),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(68),
+          child: Container(
+            color: _statsBarColor,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(children: [
+              _statCol(_isPro
+                  ? _profCV.name.split(' ').first
+                  : _hobbyCV.name.split(' ').first, 'Name'),
+              Container(width: 1, height: 34, color: _divColor),
+              _statCol(_statMid, _statMidLbl),
+              Container(width: 1, height: 34, color: _divColor),
+              _statCol(_statRight, _statRightLbl),
+            ]),
+          ),
+        ),
+      ),
+      body: Column(children: [
+        _buildToggleBar(),
+        Expanded(
+          child: FadeTransition(
+            opacity: _fadeAnim,
+            child: _isPro
+                ? ProfessionalCVView(data: _profCV)
+                : HobbyCVView(data: _hobbyCV),
+          ),
+        ),
+      ]),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openBuildCV,
+        backgroundColor: _appBarColor,
+        elevation: 4,
+        icon: const Icon(Icons.construction_rounded, color: Colors.white),
+        label: const Text('Build CV',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _buildToggleBar() {
+    return Container(
+      color: kBg,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Container(
+        height: 44,
+        decoration: BoxDecoration(
+          color: _appBarColor.withOpacity(0.10),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(children: [
+          _toggleBtn('💼  Professional', CVMode.professional),
+          _toggleBtn('🎨  Hobby',        CVMode.hobby),
+        ]),
+      ),
+    );
+  }
+
+  Widget _toggleBtn(String label, CVMode m) {
+    final active = _mode == m;
+    // each button always shows its own mode colour
+    final btnColor = m == CVMode.professional ? kGrayDark : kSkyDark;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _switchMode(m),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          margin: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: active ? btnColor : Colors.transparent,
+            borderRadius: BorderRadius.circular(26),
+          ),
+          alignment: Alignment.center,
+          child: Text(label,
+              style: TextStyle(
+                color: active ? Colors.white : btnColor,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              )),
+        ),
+      ),
+    );
+  }
+
+  static Widget _statCol(String val, String label) {
+    return Expanded(child: Column(children: [
+      Text(val, style: const TextStyle(
+          color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+      Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+    ]));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SHARED WIDGETS
+// ═══════════════════════════════════════════════════════════════
+
+class _SectionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Color color;
+  final Widget child;
+  const _SectionCard({required this.icon, required this.title,
+    required this.color, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: kCard, borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05),
+            blurRadius: 8, offset: const Offset(0, 3))],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 10),
+          Expanded(child: Text(title, style: TextStyle(
+              color: color, fontSize: 16, fontWeight: FontWeight.bold))),
+        ]),
+        const SizedBox(height: 14),
+        child,
+      ]),
+    );
+  }
+}
+
+class _SkillChip extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _SkillChip({required this.label, required this.color});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.35)),
+      ),
+      child: Text(label, style: TextStyle(
+          fontSize: 12, color: color, fontWeight: FontWeight.w600)),
+    );
+  }
+}
+
+class _BulletItem extends StatelessWidget {
+  final String text;
+  final Color color;
+  const _BulletItem({required this.text, required this.color});
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(width: 8, height: 8,
+            margin: const EdgeInsets.only(top: 5, right: 10),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Expanded(child: Text(text, style: const TextStyle(
+            fontSize: 13, color: Colors.black87, height: 1.5))),
+      ]),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PROFESSIONAL CV VIEW  — all gray
+// ═══════════════════════════════════════════════════════════════
+
+class ProfessionalCVView extends StatelessWidget {
+  final ProfessionalCV data;
+  const ProfessionalCVView({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    const c = kGrayDark;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+      child: Column(children: [
+        _ProfHeader(data: data),
+        const SizedBox(height: 14),
+        _SectionCard(icon: Icons.person_outline_rounded,
+            title: 'Professional Summary', color: c,
+            child: Text(data.summary, style: const TextStyle(
+                fontSize: 13, color: Colors.black87, height: 1.6))),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.psychology_rounded, title: 'Key Skills', color: c,
+            child: Wrap(spacing: 8, runSpacing: 8,
+                children: data.keySkills
+                    .map((s) => _SkillChip(label: s, color: kGrayAccent))
+                    .toList())),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.work_rounded,
+            title: 'Professional Experience', color: c,
+            child: Column(children: data.workExperience.map((w) => _WorkTile(w: w)).toList())),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.rocket_launch_rounded, title: 'Projects', color: c,
+            child: Column(children: data.projects.map((p) => _ProjTile(p: p)).toList())),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.school_rounded, title: 'Education', color: c,
+            child: Column(children: data.education.map((e) => _EduTile(edu: e, color: c)).toList())),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.verified_rounded,
+            title: 'Certifications / Training', color: c,
+            child: Column(children: data.certifications.map((x) => _CertTile(c: x)).toList())),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.more_horiz_rounded,
+            title: 'Additional Information', color: c,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _mini('🌐 Languages'),
+              ...data.languages.map((l) => _BulletItem(text: l, color: c)),
+              const SizedBox(height: 8),
+              _mini('🤲 Volunteer Work'),
+              ...data.volunteerWork.map((v) => _BulletItem(text: v, color: c)),
+              const SizedBox(height: 8),
+              _mini('💡 Interests'),
+              ...data.interests.map((i) => _BulletItem(text: i, color: c)),
+            ])),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.contact_phone_rounded, title: 'References', color: c,
+            child: Column(children: data.references.map((r) => _RefTile(r: r)).toList())),
+      ]),
+    );
+  }
+
+  Widget _mini(String t) => Padding(
+    padding: const EdgeInsets.only(bottom: 6),
+    child: Text(t, style: const TextStyle(
+        fontSize: 13, fontWeight: FontWeight.bold, color: kGrayDark)),
+  );
+}
+
+class _ProfHeader extends StatelessWidget {
+  final ProfessionalCV data;
+  const _ProfHeader({required this.data});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity, padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(colors: [kGrayDark, kGrayMid],
+            begin: Alignment.topLeft, end: Alignment.bottomRight),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: kGrayDark.withOpacity(0.35),
+            blurRadius: 12, offset: const Offset(0, 6))],
+      ),
+      child: Column(children: [
+        const CircleAvatar(radius: 40, backgroundColor: Colors.white24,
+            child: Icon(Icons.person_rounded, size: 44, color: Colors.white)),
+        const SizedBox(height: 12),
+        Text(data.name, style: const TextStyle(
+            color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(data.jobTitle, style: const TextStyle(color: kTextMuted, fontSize: 14)),
+        const SizedBox(height: 14),
+        const Divider(color: Colors.white24),
+        const SizedBox(height: 10),
+        Wrap(spacing: 10, runSpacing: 8, alignment: WrapAlignment.center, children: [
+          _chip(Icons.phone_rounded,       data.phone),
+          _chip(Icons.email_rounded,       data.email),
+          _chip(Icons.link_rounded,        data.linkedin),
+          _chip(Icons.language_rounded,    data.portfolio),
+          _chip(Icons.location_on_rounded, '${data.city}, ${data.country}'),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _chip(IconData icon, String text) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    decoration: BoxDecoration(color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20)),
+    child: Row(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, color: Colors.white70, size: 13),
+      const SizedBox(width: 5),
+      Text(text, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+    ]),
+  );
+}
+
+class _WorkTile extends StatelessWidget {
+  final WorkExperience w;
+  const _WorkTile({required this.w});
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Column(children: [
+          Container(width: 12, height: 12,
+              decoration: const BoxDecoration(color: kGrayAccent, shape: BoxShape.circle)),
+          Container(width: 2, height: 60, color: kGrayAccent.withOpacity(0.25)),
+        ]),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(w.role, style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1A1A2E))),
+          const SizedBox(height: 2),
+          Text('${w.company}  •  ${w.duration}', style: const TextStyle(
+              fontSize: 12, color: kGrayAccent, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 4),
+          Text(w.description, style: const TextStyle(
+              fontSize: 12, color: Colors.black54, height: 1.5)),
+        ])),
+      ]),
+    );
+  }
+}
+
+class _ProjTile extends StatelessWidget {
+  final ProjectItem p;
+  const _ProjTile({required this.p});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: kGrayDark.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: kGrayDark.withOpacity(0.15))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(p.title, style: const TextStyle(
+            fontWeight: FontWeight.bold, fontSize: 13, color: kGrayDark)),
+        const SizedBox(height: 4),
+        Text(p.description, style: const TextStyle(
+            fontSize: 12, color: Colors.black54, height: 1.5)),
+        const SizedBox(height: 6),
+        Wrap(spacing: 6, children: p.tech.split('·').map((t) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(color: kGrayAccent.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10)),
+          child: Text(t.trim(), style: const TextStyle(fontSize: 10, color: kGrayAccent)),
+        )).toList()),
+      ]),
+    );
+  }
+}
+
+class _EduTile extends StatelessWidget {
+  final Education edu;
+  final Color color;
+  const _EduTile({required this.edu, required this.color});
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(width: 10, height: 10,
+            margin: const EdgeInsets.only(top: 5, right: 12),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(edu.degree, style: const TextStyle(
+              fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF1A1A2E))),
+          const SizedBox(height: 2),
+          Text(edu.institution, style: const TextStyle(fontSize: 13, color: Colors.black54)),
+          Text(edu.year, style: TextStyle(
+              fontSize: 12, color: color, fontWeight: FontWeight.w500)),
+        ])),
+      ]),
+    );
+  }
+}
+
+class _CertTile extends StatelessWidget {
+  final CertItem c;
+  const _CertTile({required this.c});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(color: kGrayDark.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: kGrayDark.withOpacity(0.15))),
+      child: Row(children: [
+        const Icon(Icons.verified_rounded, color: kGrayAccent, size: 18),
+        const SizedBox(width: 10),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(c.name, style: const TextStyle(
+              fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1A1A2E))),
+          Text('${c.issuer}  •  ${c.year}',
+              style: const TextStyle(fontSize: 11, color: Colors.black45)),
+        ])),
+      ]),
+    );
+  }
+}
+
+class _RefTile extends StatelessWidget {
+  final Reference r;
+  const _RefTile({required this.r});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: kGrayDark.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: kGrayDark.withOpacity(0.15))),
+      child: Row(children: [
+        const CircleAvatar(radius: 22, backgroundColor: kGrayAccent,
+            child: Icon(Icons.person_outline, color: Colors.white, size: 22)),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(r.name, style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1A1A2E))),
+          Text(r.role, style: const TextStyle(fontSize: 12, color: kGrayAccent)),
+          Text(r.contact, style: const TextStyle(fontSize: 11, color: Colors.black45)),
+        ])),
+      ]),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HOBBY CV VIEW  — all sky blue
+// ═══════════════════════════════════════════════════════════════
+
+class HobbyCVView extends StatelessWidget {
+  final HobbyCV data;
+  const HobbyCVView({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+      child: Column(children: [
+        _HobbyHeader(data: data),
+        const SizedBox(height: 14),
+        _SectionCard(icon: Icons.auto_awesome_rounded,
+            title: 'Personal Profile', color: kSkyDark,
+            child: Text(data.personalProfile, style: const TextStyle(
+                fontSize: 13, color: Colors.black87, height: 1.6))),
+        const SizedBox(height: 12),
+        _HobbyListSection(icon: '🎸',
+            title: 'Main Hobbies / Creative Focus',
+            items: data.hobbies, color: kSkyAccent),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.lightbulb_rounded,
+            title: 'Personal Projects', color: kSkyDark,
+            child: Column(children: data.personalProjects
+                .map((p) => _HobbyProjectTile(p: p)).toList())),
+        const SizedBox(height: 12),
+        _HobbyListSection(icon: '💡', title: 'Skills',
+            items: data.skills, color: kSkyAccent),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.emoji_events_rounded,
+            title: 'Achievements / Recognition', color: kSkyDark,
+            child: Column(children: data.achievements
+                .map((a) => _AchievementTile(a: a)).toList())),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.groups_rounded,
+            title: 'Community Involvement', color: kSkyDark,
+            child: Column(children: data.communityInvolvement
+                .map((c) => _CommunityTile(c: c)).toList())),
+        const SizedBox(height: 12),
+        _SectionCard(icon: Icons.school_rounded,
+            title: 'Education', color: kSkyDark,
+            child: Column(children: data.education
+                .map((e) => _EduTile(edu: e, color: kSkyAccent)).toList())),
+        const SizedBox(height: 12),
+        _HobbyListSection(icon: '✨', title: 'Additional Interests',
+            items: data.additionalInterests, color: kSkyAccent),
+      ]),
+    );
+  }
+}
+
+class _HobbyHeader extends StatelessWidget {
+  final HobbyCV data;
+  const _HobbyHeader({required this.data});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity, padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(colors: [kSkyDark, kSkyMid],
+            begin: Alignment.topLeft, end: Alignment.bottomRight),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: kSkyDark.withOpacity(0.4),
+            blurRadius: 12, offset: const Offset(0, 6))],
+      ),
+      child: Column(children: [
+        const CircleAvatar(radius: 40, backgroundColor: Colors.white24,
+            child: Text('🎨', style: TextStyle(fontSize: 36))),
+        const SizedBox(height: 12),
+        Text(data.name, style: const TextStyle(
+            color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 14),
+        const Divider(color: Colors.white24),
+        const SizedBox(height: 10),
+        Wrap(spacing: 10, runSpacing: 8, alignment: WrapAlignment.center, children: [
+          _chip(Icons.email_rounded,          data.email),
+          _chip(Icons.phone_rounded,           data.phone),
+          _chip(Icons.alternate_email_rounded, data.social),
+          _chip(Icons.language_rounded,        data.portfolio),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _chip(IconData icon, String text) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    decoration: BoxDecoration(color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20)),
+    child: Row(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, color: Colors.white70, size: 13),
+      const SizedBox(width: 5),
+      Text(text, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+    ]),
+  );
+}
+
+class _HobbyListSection extends StatelessWidget {
+  final String icon, title;
+  final List<String> items;
+  final Color color;
+  const _HobbyListSection({required this.icon, required this.title,
+    required this.items, required this.color});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity, padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: kCard,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05),
+              blurRadius: 8, offset: const Offset(0, 3))]),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Container(padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: color.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(8)),
+              child: Text(icon, style: const TextStyle(fontSize: 18))),
+          const SizedBox(width: 10),
+          Expanded(child: Text(title, style: TextStyle(
+              color: color, fontSize: 16, fontWeight: FontWeight.bold))),
+        ]),
+        const SizedBox(height: 14),
+        ...items.map((item) => Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withOpacity(0.25)),
+          ),
+          child: Text(item, style: TextStyle(
+              fontSize: 14, color: Colors.grey[800], fontWeight: FontWeight.w500)),
+        )),
+      ]),
+    );
+  }
+}
+
+class _HobbyProjectTile extends StatelessWidget {
+  final HobbyProjectItem p;
+  const _HobbyProjectTile({required this.p});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: kSkyDark.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: kSkyDark.withOpacity(0.2))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(p.title, style: const TextStyle(
+            fontWeight: FontWeight.bold, fontSize: 13, color: kSkyDark)),
+        const SizedBox(height: 4),
+        Text(p.description, style: const TextStyle(
+            fontSize: 12, color: Colors.black54, height: 1.5)),
+      ]),
+    );
+  }
+}
+
+class _AchievementTile extends StatelessWidget {
+  final AchievementItem a;
+  const _AchievementTile({required this.a});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: kSkyAccent.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: kSkyAccent.withOpacity(0.25))),
+      child: Row(children: [
+        const Text('🏆', style: TextStyle(fontSize: 22)),
+        const SizedBox(width: 10),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(a.title, style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1A1A2E))),
+          const SizedBox(height: 2),
+          Text(a.detail, style: const TextStyle(fontSize: 11, color: Colors.black45)),
+        ])),
+      ]),
+    );
+  }
+}
+
+class _CommunityTile extends StatelessWidget {
+  final CommunityItem c;
+  const _CommunityTile({required this.c});
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(width: 10, height: 10,
+            margin: const EdgeInsets.only(top: 5, right: 12),
+            decoration: const BoxDecoration(color: kSkyAccent, shape: BoxShape.circle)),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(c.role, style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1A1A2E))),
+          Text(c.org, style: const TextStyle(
+              fontSize: 12, color: kSkyAccent, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 2),
+          Text(c.detail, style: const TextStyle(
+              fontSize: 12, color: Colors.black54, height: 1.4)),
+        ])),
+      ]),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BUILD CV PAGE
+//  — Shared fields: name, email, phone are synced across both tabs
+//  — All inputs start blank (except when synced from other tab)
+// ═══════════════════════════════════════════════════════════════
+
+class BuildCVPage extends StatefulWidget {
+  final ProfessionalCV initialProf;
+  final HobbyCV initialHobby;
+  const BuildCVPage({super.key, required this.initialProf, required this.initialHobby});
+
+  @override
+  State<BuildCVPage> createState() => _BuildCVPageState();
+}
+
+class _BuildCVPageState extends State<BuildCVPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tab;
+
+  // ── SHARED fields (synced between both tabs) ──
+  final _sharedName  = TextEditingController();
+  final _sharedEmail = TextEditingController();
+  final _sharedPhone = TextEditingController();
+
+  // ── Professional-only blank controllers ──
+  final _pJobTitle  = TextEditingController();
+  final _pLinkedin  = TextEditingController();
+  final _pPortfolio = TextEditingController();
+  final _pCity      = TextEditingController();
+  final _pCountry   = TextEditingController();
+  final _pSummary   = TextEditingController();
+  final _pSkills    = TextEditingController();
+  final _pLang      = TextEditingController();
+  final _pVol       = TextEditingController();
+  final _pInt       = TextEditingController();
+  final List<Map<String, TextEditingController>> _work  = [];
+  final List<Map<String, TextEditingController>> _proj  = [];
+  final List<Map<String, TextEditingController>> _edu   = [];
+  final List<Map<String, TextEditingController>> _cert  = [];
+  final List<Map<String, TextEditingController>> _ref   = [];
+
+  // ── Hobby-only blank controllers ──
+  final _hSocial    = TextEditingController();
+  final _hPortfolio = TextEditingController();
+  final _hProfile   = TextEditingController();
+  final _hHobbies   = TextEditingController();
+  final _hSkills    = TextEditingController();
+  final _hAdd       = TextEditingController();
+  final List<Map<String, TextEditingController>> _hProj  = [];
+  final List<Map<String, TextEditingController>> _hAch   = [];
+  final List<Map<String, TextEditingController>> _hComm  = [];
+  final List<Map<String, TextEditingController>> _hEdu   = [];
+
+  // Track which tab we are on to sync shared fields on tab switch
+  int _currentTab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _tab = TabController(length: 2, vsync: this);
+    _tab.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    // Nothing extra needed — shared controllers are directly bound to both tabs
+    if (!_tab.indexIsChanging) setState(() => _currentTab = _tab.index);
+  }
+
+  @override
+  void dispose() {
+    _tab.removeListener(_onTabChanged);
+    _tab.dispose();
+    for (var c in [
+      _sharedName, _sharedEmail, _sharedPhone,
+      _pJobTitle, _pLinkedin, _pPortfolio, _pCity, _pCountry,
+      _pSummary, _pSkills, _pLang, _pVol, _pInt,
+      _hSocial, _hPortfolio, _hProfile, _hHobbies, _hSkills, _hAdd,
+    ]) { c.dispose(); }
+    for (var m in [..._work,..._proj,..._edu,..._cert,..._ref,
+      ..._hProj,..._hAch,..._hComm,..._hEdu]) {
+      m.values.forEach((c) => c.dispose());
+    }
+    super.dispose();
+  }
+
+  void _save() {
+    final newProf = ProfessionalCV(
+      name: _sharedName.text,   // ← shared
+      email: _sharedEmail.text, // ← shared
+      phone: _sharedPhone.text, // ← shared
+      jobTitle: _pJobTitle.text, linkedin: _pLinkedin.text,
+      portfolio: _pPortfolio.text, city: _pCity.text, country: _pCountry.text,
+      summary: _pSummary.text,
+      keySkills: _pSkills.text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+      workExperience: _work.map((m) => WorkExperience(
+          role: m['role']!.text, company: m['company']!.text,
+          duration: m['duration']!.text, description: m['desc']!.text)).toList(),
+      projects: _proj.map((m) => ProjectItem(
+          title: m['title']!.text, description: m['desc']!.text,
+          tech: m['tech']!.text)).toList(),
+      education: _edu.map((m) => Education(
+          degree: m['degree']!.text, institution: m['inst']!.text,
+          year: m['year']!.text)).toList(),
+      certifications: _cert.map((m) => CertItem(
+          name: m['name']!.text, issuer: m['issuer']!.text,
+          year: m['year']!.text)).toList(),
+      languages: _pLang.text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+      volunteerWork: _pVol.text.split('\n').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+      interests: _pInt.text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+      references: _ref.map((m) => Reference(
+          name: m['name']!.text, role: m['role']!.text,
+          contact: m['contact']!.text)).toList(),
+    );
+
+    final newHobby = HobbyCV(
+      name: _sharedName.text,   // ← shared
+      email: _sharedEmail.text, // ← shared
+      phone: _sharedPhone.text, // ← shared
+      social: _hSocial.text, portfolio: _hPortfolio.text,
+      personalProfile: _hProfile.text,
+      hobbies: _hHobbies.text.split('\n').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+      personalProjects: _hProj.map((m) => HobbyProjectItem(
+          title: m['title']!.text, description: m['desc']!.text)).toList(),
+      skills: _hSkills.text.split('\n').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+      achievements: _hAch.map((m) => AchievementItem(
+          title: m['title']!.text, detail: m['detail']!.text)).toList(),
+      communityInvolvement: _hComm.map((m) => CommunityItem(
+          role: m['role']!.text, org: m['org']!.text,
+          detail: m['detail']!.text)).toList(),
+      education: _hEdu.map((m) => Education(
+          degree: m['degree']!.text, institution: m['inst']!.text,
+          year: m['year']!.text)).toList(),
+      additionalInterests: _hAdd.text.split('\n').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+    );
+
+    Navigator.pop(context, {'profCV': newProf, 'hobbyCV': newHobby});
+  }
+
+  // ── Input decoration helpers ──────────────────────────────
+  InputDecoration _fdGray(String label, {String? hint}) => _deco(label, kGrayDark, hint: hint);
+  InputDecoration _fdSky(String label,  {String? hint}) => _deco(label, kSkyDark,  hint: hint);
+  InputDecoration _fdShared(String label, {String? hint}) {
+    // shared fields use the colour of the currently active tab
+    return _currentTab == 0
+        ? _fdGray(label, hint: hint)
+        : _fdSky(label, hint: hint);
+  }
+
+  InputDecoration _deco(String label, Color focusColor, {String? hint}) =>
+      InputDecoration(
+        labelText: label, hintText: hint,
+        labelStyle: const TextStyle(fontSize: 13),
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: focusColor, width: 2)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.grey.shade300)),
+      );
+
+  // ── Section card in the form ──────────────────────────────
+  Widget _sec(String emoji, String title, Color color, Widget child) =>
+      Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: kCard, borderRadius: BorderRadius.circular(14),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04),
+              blurRadius: 6, offset: const Offset(0, 3))],
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Text(emoji, style: const TextStyle(fontSize: 17)),
+            const SizedBox(width: 8),
+            Text(title, style: TextStyle(
+                fontSize: 15, fontWeight: FontWeight.bold, color: color)),
+          ]),
+          const SizedBox(height: 12),
+          child,
+        ]),
+      );
+
+  // ── Shared-field banner ───────────────────────────────────
+  Widget _sharedBanner(Color color) => Container(
+    margin: const EdgeInsets.only(bottom: 14),
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.08),
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: color.withOpacity(0.3)),
+    ),
+    child: Row(children: [
+      Icon(Icons.sync_rounded, color: color, size: 18),
+      const SizedBox(width: 8),
+      Expanded(child: Text(
+        'Name, Email & Phone are shared — filling them here updates both CVs.',
+        style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500),
+      )),
+    ]),
+  );
+
+  Widget _entryBox(Color c, List<Widget> fields, VoidCallback del) =>
+      Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(color: c.withOpacity(0.04),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: c.withOpacity(0.2))),
+        child: Column(children: [
+          ...fields,
+          Align(alignment: Alignment.centerRight,
+              child: TextButton.icon(onPressed: del,
+                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 15),
+                  label: const Text('Remove',
+                      style: TextStyle(color: Colors.red, fontSize: 12)))),
+        ]),
+      );
+
+  Widget _addBtn(String label, Color color, VoidCallback fn) =>
+      OutlinedButton.icon(
+        onPressed: fn,
+        icon: Icon(Icons.add_circle_outline_rounded, color: color, size: 17),
+        label: Text(label, style: TextStyle(color: color, fontSize: 13)),
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: color.withOpacity(0.4)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBg,
+      appBar: AppBar(
+        backgroundColor: kGrayDark,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Build CV',
+            style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+        centerTitle: true,
+        actions: [
+          TextButton.icon(
+            onPressed: _save,
+            icon: const Icon(Icons.save_rounded, color: Colors.white, size: 18),
+            label: const Text('Save',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50),
+          child: Container(
+            color: kGrayMid,
+            child: TabBar(
+              controller: _tab,
+              indicatorColor: Colors.white,
+              indicatorWeight: 3,
+              labelColor: Colors.white,
+              unselectedLabelColor: kTextMuted,
+              labelStyle: const TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: 14),
+              tabs: const [
+                Tab(text: '💼  Professional'),
+                Tab(text: '🎨  Hobby'),
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tab,
+        children: [_profForm(), _hobbyForm()],
+      ),
+    );
+  }
+
+  // ── Professional form ─────────────────────────────────────
+  Widget _profForm() => SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(children: [
+      // Shared banner
+      _sharedBanner(kGrayAccent),
+
+      // Shared contact fields
+      _sec('📋', 'Header / Contact', kGrayDark, Column(children: [
+        // ── SHARED ──
+        TextField(controller: _sharedName,  decoration: _fdGray('Full Name')),  const SizedBox(height: 10),
+        Row(children: [
+          Expanded(child: TextField(controller: _sharedEmail, decoration: _fdGray('Email'))),
+          const SizedBox(width: 10),
+          Expanded(child: TextField(controller: _sharedPhone, decoration: _fdGray('Phone'))),
+        ]),
+        const SizedBox(height: 10),
+        // ── PROFESSIONAL-ONLY ──
+        TextField(controller: _pJobTitle,  decoration: _fdGray('Job Title')),   const SizedBox(height: 10),
+        TextField(controller: _pLinkedin,  decoration: _fdGray('LinkedIn URL')), const SizedBox(height: 10),
+        TextField(controller: _pPortfolio, decoration: _fdGray('Portfolio URL')), const SizedBox(height: 10),
+        Row(children: [
+          Expanded(child: TextField(controller: _pCity,    decoration: _fdGray('City'))),
+          const SizedBox(width: 10),
+          Expanded(child: TextField(controller: _pCountry, decoration: _fdGray('Country'))),
+        ]),
+      ])),
+      _sec('📝', 'Professional Summary', kGrayDark,
+          TextField(controller: _pSummary,
+              decoration: _fdGray('Write your summary...'), maxLines: 4)),
+      _sec('🧠', 'Key Skills', kGrayDark,
+          TextField(controller: _pSkills,
+              decoration: _fdGray('Skills', hint: 'Comma-separated: Flutter, SQL...'),
+              maxLines: 3)),
+      _sec('💼', 'Professional Experience', kGrayDark, Column(children: [
+        ..._work.asMap().entries.map((e) => _entryBox(kGrayAccent, [
+          TextField(controller: e.value['role']!,     decoration: _fdGray('Role')),          const SizedBox(height: 8),
+          Row(children: [
+            Expanded(child: TextField(controller: e.value['company']!,  decoration: _fdGray('Company'))),
+            const SizedBox(width: 8),
+            Expanded(child: TextField(controller: e.value['duration']!, decoration: _fdGray('Duration'))),
+          ]),                                                                                  const SizedBox(height: 8),
+          TextField(controller: e.value['desc']!, decoration: _fdGray('Description'), maxLines: 3),
+        ], () => setState(() { _work[e.key].values.forEach((c) => c.dispose()); _work.removeAt(e.key); }))),
+        _addBtn('Add Experience', kGrayAccent, () => setState(() => _work.add({
+          'role': TextEditingController(), 'company': TextEditingController(),
+          'duration': TextEditingController(), 'desc': TextEditingController(),
+        }))),
+      ])),
+      _sec('🚀', 'Projects', kGrayDark, Column(children: [
+        ..._proj.asMap().entries.map((e) => _entryBox(kGrayAccent, [
+          TextField(controller: e.value['title']!, decoration: _fdGray('Title')),             const SizedBox(height: 8),
+          TextField(controller: e.value['desc']!,  decoration: _fdGray('Description'), maxLines: 2), const SizedBox(height: 8),
+          TextField(controller: e.value['tech']!,  decoration: _fdGray('Tech Stack')),
+        ], () => setState(() { _proj[e.key].values.forEach((c) => c.dispose()); _proj.removeAt(e.key); }))),
+        _addBtn('Add Project', kGrayAccent, () => setState(() => _proj.add({
+          'title': TextEditingController(), 'desc': TextEditingController(), 'tech': TextEditingController(),
+        }))),
+      ])),
+      _sec('🎓', 'Education', kGrayDark, Column(children: [
+        ..._edu.asMap().entries.map((e) => _entryBox(kGrayAccent, [
+          TextField(controller: e.value['degree']!, decoration: _fdGray('Degree')),           const SizedBox(height: 8),
+          Row(children: [
+            Expanded(child: TextField(controller: e.value['inst']!, decoration: _fdGray('Institution'))),
+            const SizedBox(width: 8),
+            SizedBox(width: 80, child: TextField(controller: e.value['year']!, decoration: _fdGray('Year'))),
+          ]),
+        ], () => setState(() { _edu[e.key].values.forEach((c) => c.dispose()); _edu.removeAt(e.key); }))),
+        _addBtn('Add Education', kGrayAccent, () => setState(() => _edu.add({
+          'degree': TextEditingController(), 'inst': TextEditingController(), 'year': TextEditingController(),
+        }))),
+      ])),
+      _sec('🏅', 'Certifications', kGrayDark, Column(children: [
+        ..._cert.asMap().entries.map((e) => _entryBox(kGrayAccent, [
+          TextField(controller: e.value['name']!,   decoration: _fdGray('Certificate')),     const SizedBox(height: 8),
+          Row(children: [
+            Expanded(child: TextField(controller: e.value['issuer']!, decoration: _fdGray('Issuer'))),
+            const SizedBox(width: 8),
+            SizedBox(width: 80, child: TextField(controller: e.value['year']!, decoration: _fdGray('Year'))),
+          ]),
+        ], () => setState(() { _cert[e.key].values.forEach((c) => c.dispose()); _cert.removeAt(e.key); }))),
+        _addBtn('Add Certificate', kGrayAccent, () => setState(() => _cert.add({
+          'name': TextEditingController(), 'issuer': TextEditingController(), 'year': TextEditingController(),
+        }))),
+      ])),
+      _sec('ℹ️', 'Additional Info', kGrayDark, Column(children: [
+        TextField(controller: _pLang, decoration: _fdGray('Languages', hint: 'Comma-separated'), maxLines: 2), const SizedBox(height: 10),
+        TextField(controller: _pVol,  decoration: _fdGray('Volunteer Work', hint: 'One per line'), maxLines: 3), const SizedBox(height: 10),
+        TextField(controller: _pInt,  decoration: _fdGray('Interests', hint: 'Comma-separated'), maxLines: 2),
+      ])),
+      _sec('👤', 'References', kGrayDark, Column(children: [
+        ..._ref.asMap().entries.map((e) => _entryBox(kGrayAccent, [
+          TextField(controller: e.value['name']!,    decoration: _fdGray('Name')),           const SizedBox(height: 8),
+          TextField(controller: e.value['role']!,    decoration: _fdGray('Role / Company')), const SizedBox(height: 8),
+          TextField(controller: e.value['contact']!, decoration: _fdGray('Email / Phone')),
+        ], () => setState(() { _ref[e.key].values.forEach((c) => c.dispose()); _ref.removeAt(e.key); }))),
+        _addBtn('Add Reference', kGrayAccent, () => setState(() => _ref.add({
+          'name': TextEditingController(), 'role': TextEditingController(), 'contact': TextEditingController(),
+        }))),
+      ])),
+      const SizedBox(height: 20),
+    ]),
+  );
+
+  // ── Hobby form ────────────────────────────────────────────
+  Widget _hobbyForm() => SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(children: [
+      // Shared banner
+      _sharedBanner(kSkyAccent),
+
+      _sec('📋', 'Header / Contact', kSkyDark, Column(children: [
+        // ── SHARED ──
+        TextField(controller: _sharedName,  decoration: _fdSky('Full Name')),   const SizedBox(height: 10),
+        Row(children: [
+          Expanded(child: TextField(controller: _sharedEmail, decoration: _fdSky('Email'))),
+          const SizedBox(width: 10),
+          Expanded(child: TextField(controller: _sharedPhone, decoration: _fdSky('Phone'))),
+        ]),
+        const SizedBox(height: 10),
+        // ── HOBBY-ONLY ──
+        TextField(controller: _hSocial,    decoration: _fdSky('Social Handle')), const SizedBox(height: 10),
+        TextField(controller: _hPortfolio, decoration: _fdSky('Portfolio')),
+      ])),
+      _sec('🌟', 'Personal Profile', kSkyDark,
+          TextField(controller: _hProfile,
+              decoration: _fdSky('Describe yourself...'), maxLines: 4)),
+      _sec('🎸', 'Main Hobbies / Creative Focus', kSkyDark,
+          TextField(controller: _hHobbies,
+              decoration: _fdSky('Hobbies', hint: 'One per line, e.g. 🎸 Guitar'),
+              maxLines: 6)),
+      _sec('💡', 'Personal Projects', kSkyDark, Column(children: [
+        ..._hProj.asMap().entries.map((e) => _entryBox(kSkyAccent, [
+          TextField(controller: e.value['title']!, decoration: _fdSky('Title')),              const SizedBox(height: 8),
+          TextField(controller: e.value['desc']!,  decoration: _fdSky('Description'), maxLines: 3),
+        ], () => setState(() { _hProj[e.key].values.forEach((c) => c.dispose()); _hProj.removeAt(e.key); }))),
+        _addBtn('Add Project', kSkyAccent, () => setState(() => _hProj.add({
+          'title': TextEditingController(), 'desc': TextEditingController(),
+        }))),
+      ])),
+      _sec('💡', 'Skills', kSkyDark,
+          TextField(controller: _hSkills,
+              decoration: _fdSky('Skills', hint: 'One per line, e.g. 💬 Active Listening'),
+              maxLines: 6)),
+      _sec('🏆', 'Achievements / Recognition', kSkyDark, Column(children: [
+        ..._hAch.asMap().entries.map((e) => _entryBox(kSkyAccent, [
+          TextField(controller: e.value['title']!,  decoration: _fdSky('Achievement')),      const SizedBox(height: 8),
+          TextField(controller: e.value['detail']!, decoration: _fdSky('Details')),
+        ], () => setState(() { _hAch[e.key].values.forEach((c) => c.dispose()); _hAch.removeAt(e.key); }))),
+        _addBtn('Add Achievement', kSkyAccent, () => setState(() => _hAch.add({
+          'title': TextEditingController(), 'detail': TextEditingController(),
+        }))),
+      ])),
+      _sec('🤝', 'Community Involvement', kSkyDark, Column(children: [
+        ..._hComm.asMap().entries.map((e) => _entryBox(kSkyAccent, [
+          TextField(controller: e.value['role']!,   decoration: _fdSky('Role')),              const SizedBox(height: 8),
+          TextField(controller: e.value['org']!,    decoration: _fdSky('Organization')),      const SizedBox(height: 8),
+          TextField(controller: e.value['detail']!, decoration: _fdSky('Details'), maxLines: 2),
+        ], () => setState(() { _hComm[e.key].values.forEach((c) => c.dispose()); _hComm.removeAt(e.key); }))),
+        _addBtn('Add Involvement', kSkyAccent, () => setState(() => _hComm.add({
+          'role': TextEditingController(), 'org': TextEditingController(), 'detail': TextEditingController(),
+        }))),
+      ])),
+      _sec('🎓', 'Education', kSkyDark, Column(children: [
+        ..._hEdu.asMap().entries.map((e) => _entryBox(kSkyAccent, [
+          TextField(controller: e.value['degree']!, decoration: _fdSky('Degree')),            const SizedBox(height: 8),
+          Row(children: [
+            Expanded(child: TextField(controller: e.value['inst']!, decoration: _fdSky('Institution'))),
+            const SizedBox(width: 8),
+            SizedBox(width: 80, child: TextField(controller: e.value['year']!, decoration: _fdSky('Year'))),
+          ]),
+        ], () => setState(() { _hEdu[e.key].values.forEach((c) => c.dispose()); _hEdu.removeAt(e.key); }))),
+        _addBtn('Add Education', kSkyDark, () => setState(() => _hEdu.add({
+          'degree': TextEditingController(), 'inst': TextEditingController(), 'year': TextEditingController(),
+        }))),
+      ])),
+      _sec('✨', 'Additional Interests', kSkyDark,
+          TextField(controller: _hAdd,
+              decoration: _fdSky('Interests', hint: 'One per line, e.g. 🌍 Sustainable Tech'),
+              maxLines: 6)),
+      const SizedBox(height: 20),
+    ]),
+  );
+}
